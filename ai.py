@@ -1,4 +1,4 @@
-from constants import WHITE
+from constants import RED
 from copy import deepcopy
 import random
 
@@ -14,7 +14,7 @@ def get_moves(board):
 class RandomAI:
     def move(board):
         move = get_moves(board)[0]
-        board.move_and_update_turn(*move)
+        board.move(*move)
 
 
 class MinimaxAI:
@@ -24,7 +24,7 @@ class MinimaxAI:
     def move(self, board):
         self.color = board.turn
         _, move = self.minimax(board, self.depth)
-        board.move_and_update_turn(*move)
+        board.move(*move)
 
     def minimax(self, board, depth):
         if depth == 0 or board.gameover:
@@ -32,28 +32,21 @@ class MinimaxAI:
 
         use_max = board.turn == self.color
         depth2 = depth if board.can_jump() else depth - 1
-        best_val = -1 if use_max else 20
+        best_val = -float('inf') if use_max else float('inf')
         best_move = None
         for move in get_moves(board):
             board2 = deepcopy(board)
-            board2.move_and_update_turn(*move)
+            board2.move(*move)
             val, _ = self.minimax(board2, depth2)
-            # if depth == 4:
-            #     print(val, move)
-            # Todo: undo move instead of creating copy
-            # board.undo_move_and_update_turn(*move)
             if use_max and val > best_val or not use_max and val < best_val:
                 best_val = val
                 best_move = move
         return best_val, best_move
 
-    # Todo: kings should be worth more points
-    # Todo: the closer a piece is to the back rank, the higher the score
     def metric(self, board):
-        if self.color == WHITE:
-            c1, c2 = board.white_count, board.red_count
-        else:
-            c1, c2 = board.red_count, board.white_count
-        if c2 == 0:
-            return 20
-        return c1 / c2
+        s1, s2 = board.white_score, board.red_score
+        if self.color == RED:
+            s1, s2 = s2, s1
+        if s2 == 0:
+            return float('inf')
+        return s1 / s2

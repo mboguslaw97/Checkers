@@ -1,16 +1,16 @@
 from constants import BLACK, BLUE, COLS, HEIGHT, RED, ROWS, SQUARE_SIZE, WHITE, WIDTH
-from util import add_to_dict_val, draw_circle, get_mid_rc
+from util import add_to_dict_val, draw_circle, get_mid_rc, inc_attr
 from piece import Piece
 import pygame
 import pygame.gfxdraw
 
 
-class Board:
+class Board(dict):
     def __init__(self):
         self.turn = RED
         self.gameover = False
-        self.white_count = 15
-        self.red_count = 15
+        self.white_score = 15
+        self.red_score = 15
         self.moves_since_jump = 0
         self.board = {}
         for r in range(ROWS):
@@ -29,7 +29,7 @@ class Board:
         if rc in self.get_moves():
             self.selected = self.get_piece(rc)
         elif rc in self.get_selected_moves():
-            self.move_and_update_turn(self.selected.rc, rc)
+            self.move(self.selected.rc, rc)
         elif not self.selected_locked:
             self.clear_selected()
 
@@ -39,13 +39,16 @@ class Board:
     def get_moves(self):
         return self.jumps if len(self.jumps) > 0 else self.slides
 
-    def move_and_update_turn(self, rc1, rc2):
+    def move(self, rc1, rc2):
         if self.can_jump():
             self.jump_and_update_turn(rc1, rc2)
         else:
             self.slide_and_update_turn(rc1, rc2)
         if rc2[0] in (0, 7):
-            self.board[rc2].king = True
+            piece = self.board[rc2]
+            piece.king = True
+            score_key = 'white_score' if piece.color == WHITE else 'red_score'
+            inc_attr(self, score_key, 0.5)
 
     def jump_and_update_turn(self, rc1, rc2):
         self.slide(rc1, rc2)
@@ -53,10 +56,8 @@ class Board:
         del self.board[mid_rc]
 
         self.moves_since_jump = 0
-        if self.turn == WHITE:
-            self.red_count -= 1
-        else:
-            self.white_count -= 1
+        score_key = 'white_score' if self.turn == RED else 'red_score'
+        inc_attr(self, score_key, -1)
 
         self.clear_moves()
         self.calc_piece_moves(rc2)
