@@ -9,6 +9,8 @@ class Board:
     def __init__(self):
         self.turn = RED
         self.gameover = False
+        self.white_count = 15
+        self.red_count = 15
         self.moves_since_jump = 0
         self.board = {}
         for r in range(ROWS):
@@ -45,6 +47,27 @@ class Board:
         if rc2[0] in (0, 7):
             self.board[rc2].king = True
 
+    def jump_and_update_turn(self, rc1, rc2):
+        self.slide(rc1, rc2)
+        mid_rc = get_mid_rc(rc1, rc2)
+        del self.board[mid_rc]
+
+        self.moves_since_jump = 0
+        if self.turn == WHITE:
+            self.red_count -= 1
+        else:
+            self.white_count -= 1
+
+        self.clear_moves()
+        self.calc_piece_moves(rc2)
+        if self.can_jump():
+            self.selected_locked = True
+        else:
+            self.change_turn()
+
+    def can_jump(self):
+        return len(self.jumps) > 0
+
     def slide_and_update_turn(self, rc1, rc2):
         self.slide(rc1, rc2)
         self.moves_since_jump += 1
@@ -54,25 +77,6 @@ class Board:
         selected = self.board.pop(rc1)
         selected.rc = rc2
         self.board[rc2] = selected
-
-    def jump_and_update_turn(self, rc1, rc2):
-        self.jump(rc1, rc2)
-        self.moves_since_jump = 0
-
-        self.clear_moves()
-        self.calc_piece_moves(rc2)
-        if self.can_jump():
-            self.selected_locked = True
-        else:
-            self.change_turn()
-
-    def jump(self, rc1, rc2):
-        self.slide(rc1, rc2)
-        mid_rc = get_mid_rc(rc1, rc2)
-        del self.board[mid_rc]
-
-    def can_jump(self):
-        return len(self.jumps) > 0
 
     def change_turn(self):
         self.turn = RED if self.turn == WHITE else WHITE
@@ -123,7 +127,7 @@ class Board:
             self.end_game('Red wins')
         elif no_moves and self.turn == RED:
             self.end_game('White wins')
-        elif self.moves_since_jump == 20:
+        elif self.moves_since_jump == 50:
             self.end_game('Draw')
 
     def end_game(self, msg):

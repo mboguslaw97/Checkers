@@ -13,9 +13,9 @@ board = Board()
 running = True
 
 # Set AI to None for human input
-white_ai_move = ai.random_move
-red_ai_move = ai.random_move
-# red_ai_move = None
+white_ai_move = ai.minimax_move
+# red_ai_move = ai.random_move
+red_ai_move = None
 
 while running:
     board.draw(screen)
