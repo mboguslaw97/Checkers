@@ -1,2 +1,3 @@
-__pycache__
-sandbox.ipynb
+pyinstaller
+src/__pycache__
+src/sandbox.ipynb

@@ -14,7 +14,7 @@ running = True
 
 # Set AI to None for human input
 # red_ai = MinimaxAI(8)
-white_ai = MinimaxAI(8)
+white_ai = MinimaxAI(10)
 red_ai = None
 # white_ai = None
 # white_ai = RandomAI()
