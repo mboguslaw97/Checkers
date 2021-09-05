@@ -6,3 +6,5 @@ The AI is optimized to see 10 moves ahead in under a minute. Optimizations inclu
 
 - Alpha-Beta pruning
 - In-place updates during minimax (as apposed to creating deep-copies for each node)
+
+UI inspired by https://github.com/techwithtim/Python-Checkers
